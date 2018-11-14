@@ -13,17 +13,17 @@
 It is NOT the same as the variable declared further down.-->
 
 <script>
-var ballX = 30; // distance of ball start location from the X axis
+var ballX = 75; // distance of ball start location from the X axis
 var ballY = 75; // same from Y axis
 var ballSpeedX = 5; //speed away from X axis? changes the angle
 var ballSpeedY = 7; //speed away from Y axis? - this also changes the angle
 
 const BRICK_W = 100;
-const BRICK_H = 50;
-const BRICK_COUNT = 8;
-const BRICK_GAP = 2 ;
-const BRICK_ROWS = 2;
-var brickGrid = new Array(BRICK_COUNT); // bricks now via index
+const BRICK_H = 25;
+const BRICK_COLS = 8;
+const BRICK_GAP = 2;
+const BRICK_ROWS = 8;
+var brickGrid = new Array(BRICK_COLS); // bricks now via index
 
 const PADDLE_WIDTH = 100;
 const PADDLE_THICKNESS = 10;
@@ -50,12 +50,13 @@ function updateMousePos(evt) {
 }
 
 function brickReset() {
-  for(var i = 0; i<BRICK_COUNT;i++){
-    if(Math.random() < 0.5){
+  for(var eachCol = 0; eachCol<BRICK_COLS;eachCol++){
+    /*if(Math.random() < 0.5){
       brickGrid[i] = true;
     } else {
       brickGrid[i] = false;
-    } // end of else (rand check)
+    }*/ // end of else (rand check)
+    brickGrid[eachCol] = true;
   } //end of each brick
 } //end of brickReset function
 
@@ -124,11 +125,15 @@ function moveAll() {
 /* DRAW CODE: */
 
 function drawBricks(){
-  for(var i=0;i<BRICK_COUNT;i++) {
-    if(brickGrid[i]) {
-      colorRect(BRICK_W*i,0, BRICK_W-BRICK_GAP,BRICK_H, 'blue');
-    } // end of is this brick here
+  for(var eachRow=0;eachRow<BRICK_ROWS;eachRow++) {
+    for(var eachCol=0;eachCol<BRICK_COLS ;eachCol++) {
+      if(brickGrid[eachCol]) {
+        colorRect(BRICK_W*eachCol, BRICK_H*eachRow/*this number here is the distance down*/,
+          BRICK_W-BRICK_GAP,BRICK_H-BRICK_GAP , 'blue');
+
+     } // end of is this brick here
   } // end of for each brick
+}
 } // end of draw bricks func
 
 function drawAll(){
