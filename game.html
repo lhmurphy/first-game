@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <p>This is a very basic paddle game using a 2D tile grid.</p>
+</head>
+
+<html>
+<body>
+<canvas id="gameCanvas" width="800" height ="600"></canvas> <!--STEP ONE-->
+<!--Sthis canvas element is only a container for graphics - must use JS to draw the graphics.
+It is NOT the same as the variable declared further down.-->
+
+<script>
+var ballX = 75; // distance of ball start location from the X axis
+var ballY = 75; // same from Y axis
+var ballSpeedX = 5; //speed away from X axis? changes the angle
+var ballSpeedY = 7; //speed away from Y axis? - this also changes the angle
+
+const BRICK_W = 100;
+const BRICK_H = 50;
+const BRICK_COUNT = 8;
+const BRICK_GAP = 2 ;
+const BRICK_ROWS = 2;
+var brickGrid = new Array(BRICK_COUNT); // bricks now via index
+
+const PADDLE_WIDTH = 100;
+const PADDLE_THICKNESS = 10;
+const PADDLE_DIST_FROM_EDGE = 60;
+var paddleX = 400; //this has to be a var because everytime we move the mouse, it's going to move the paddle
+
+/*const BRICK_WIDTH = 100;
+const BRICK_THICKNESS = 10;
+const BRICK_DIST_FROM_EDGE = 600;*/
+
+var canvas, canvasContext; // STEP THREE - declaring variables. Don't technicaly have to declare variables in global because they will start implementing once you name them later in the code but it's good practice because every other language does this
+
+var mouseX = 0;
+var mouseY = 0;
+
+function updateMousePos(evt) {
+  var rect = canvas.getBoundingClientRect();
+  var root = document.documentElement;
+
+  mouseX = evt.clientX - rect.left - root.scrollLeft;
+  mouseY = evt.clientY - rect.top - root.scrollTop;
+
+  paddleX = mouseX - PADDLE_WIDTH/2;
+}
+
+function brickReset() {
+  for(var i = 0; i<BRICK_COUNT;i++){
+    if(Math.random() < 0.5){
+      brickGrid[i] = true;
+    } else {
+      brickGrid[i] = false;
+    } // end of else (rand check)
+  } //end of each brick
+} //end of brickReset function
+
+
+
+window.onload = function(){ // STEP TWO - this function gets called automatically after a HTML page finishes loading
+  canvas = document.getElementById('gameCanvas'); // ?? I don't know what document. means, but this is to get the width & height which we have declared in 'canvas at the top'
+  canvasContext = canvas.getContext('2d'); // ?? drawing context on the cavnvas
+
+  var framesPerSecond = 30;
+  setInterval(updateAll, 1000/framesPerSecond);
+
+  canvas.addEventListener('mousemove', updateMousePos);// this evables to paddle to move when we move the mouse
+
+  brickReset();
+}
+
+/* MOTION CODE: */
+function updateAll() {
+  moveAll();
+  drawAll();
+}
+
+function ballReset(){
+  ballX = canvas.width/2;
+  ballY = canvas.height/2;
+}
+
+function moveAll() {
+  ballX += ballSpeedX; //left to right
+  ballY += ballSpeedY;
+
+  if(ballX < 0) { //left
+    ballSpeedX *= -1;
+  }
+
+  if(ballX > canvas.width) { //right
+    ballSpeedX *= -1;
+  }
+
+  if(ballY < 0) { //top
+    ballSpeedY *= -1;
+  }
+
+  if(ballY > canvas.height) { //bottom
+    ballReset();
+  }
+
+  var paddleTopEdgeY = canvas.height - PADDLE_DIST_FROM_EDGE;
+  var paddleBottomEdgeY = paddleTopEdgeY + PADDLE_THICKNESS;
+  var paddleLeftEdgeX = paddleX;
+  var paddleRightEdgeX = paddleLeftEdgeX + PADDLE_WIDTH;
+  if( ballY > paddleTopEdgeY && // below top if paddle
+      ballY < paddleBottomEdgeY && //above top of paddle
+      ballX > paddleLeftEdgeX &&
+      ballX < paddleRightEdgeX) {
+
+      ballSpeedY *= -1; // flips the ball vertically
+
+      var centerOfPaddleX = paddleX + PADDLE_WIDTH/2;
+      var ballDistFromPaddleCenterX = ballX - centerOfPaddleX; // how far is the ball frm the centre of the padle
+      ballSpeedX = ballDistFromPaddleCenterX *0.35;
+  }
+}
+
+/* DRAW CODE: */
+
+function drawBricks(){
+  for(var i=0;i<BRICK_COUNT;i++) {
+    if(brickGrid[i]) {
+      colorRect(BRICK_W*i,0, BRICK_W-BRICK_GAP,BRICK_H, 'blue');
+    } // end of is this brick here
+  } // end of for each brick
+} // end of draw bricks func
+
+function drawAll(){
+  colorRect(0,0, canvas.width,canvas.height, 'black'); //clear screen
+
+  colorCircle(ballX,ballY, 10 /*size of ball*/, 'white'); // draw ball
+
+  colorRect(paddleX, canvas.height-PADDLE_DIST_FROM_EDGE,PADDLE_WIDTH,PADDLE_THICKNESS, 'white');
+
+  drawBricks();
+
+  var mouseBrickCol = mouseX / BRICK_W;
+  var mouseBrickRow = mouseY / BRICK_H;
+  colorText(mouseBrickCol+","+mouseBrickRow, mouseX,mouseY, 'yellow');
+}
+
+function colorRect(topLeftX,topLeftY, boxWidth,boxHeight, fillColor){
+  canvasContext.fillStyle = fillColor;
+  canvasContext.fillRect(topLeftX,topLeftY, boxWidth,boxHeight); //The argument order for fillRect is x,y,width, then height.
+}
+
+function colorCircle(centerX,centerY, radius, fillColor){
+  canvasContext.fillStyle = fillColor;
+  canvasContext.beginPath();
+  canvasContext.arc(centerX,centerY, radius, 0,Math.PI*2, true);
+  canvasContext.fill();
+}
+
+function colorText(showWords, textX,textY, fillColor){
+  canvasContext.fillStyle = fillColor;
+  canvasContext.fillText(showWords, textX,textY);
+}
+
+// I like that he does it step by step so you can see what elements to do what
+// would you always do the coding in portions like this or would you go straight to thinking about the deparate items that need drawing? is the paddle first then the ball?
+// why does the ball start in different directions each time?
+// I discovered that you always go back to the top to declare your new CONST or VARs
+
+</script>
+</body>
+</html>
