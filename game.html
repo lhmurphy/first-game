@@ -18,12 +18,12 @@ var ballY = 75; // same from Y axis
 var ballSpeedX = 5; //speed away from X axis? changes the angle
 var ballSpeedY = 7; //speed away from Y axis? - this also changes the angle
 
-const BRICK_W = 100;
-const BRICK_H = 25;
-const BRICK_COLS = 8;
+const BRICK_W = 80;
+const BRICK_H = 20;
 const BRICK_GAP = 2;
-const BRICK_ROWS = 8;
-var brickGrid = new Array(BRICK_COLS); // bricks now via index
+const BRICK_COLS = 10;
+const BRICK_ROWS = 14;
+var brickGrid = new Array(BRICK_COLS * BRICK_ROWS); // bricks now via index
 
 const PADDLE_WIDTH = 100;
 const PADDLE_THICKNESS = 10;
@@ -50,18 +50,13 @@ function updateMousePos(evt) {
 }
 
 function brickReset() {
-  for(var eachCol = 0; eachCol<BRICK_COLS;eachCol++){
-    /*if(Math.random() < 0.5){
-      brickGrid[i] = true;
-    } else {
-      brickGrid[i] = false;
-    }*/ // end of else (rand check)
-    brickGrid[eachCol] = true;
-  } //end of each brick
-} //end of brickReset function
+	for(var i=0; i<BRICK_COLS * BRICK_ROWS; i++) {
+		brickGrid[i] = true;
+	} // end of for each brick
+} // end of brickReset func
 
 
-
+/* on load function - everything inside here will load*/
 window.onload = function(){ // STEP TWO - this function gets called automatically after a HTML page finishes loading
   canvas = document.getElementById('gameCanvas'); // grabbing element on page by id ?? I don't know what document. means, but this is to get the width & height which we have declared in 'canvas at the top'
   canvasContext = canvas.getContext('2d'); // ?? drawing context on the cavnvas
@@ -124,10 +119,16 @@ function moveAll() {
 
 /* DRAW CODE: */
 
+function rowColToArrayIndex(col, row) { // x before y, horizontal before vertical
+  return col + BRICK_COLS * row;
+}
 function drawBricks(){
   for(var eachRow=0;eachRow<BRICK_ROWS;eachRow++) {
     for(var eachCol=0;eachCol<BRICK_COLS ;eachCol++) {
-      if(brickGrid[eachCol]) {
+
+      var arrayIndex = rowColToArrayIndex(eachRow, eachCol);
+
+      if(brickGrid[arrayIndex]) {
         colorRect(BRICK_W*eachCol, BRICK_H*eachRow/*this number here is the distance down*/,
           BRICK_W-BRICK_GAP,BRICK_H-BRICK_GAP , 'blue');
 
@@ -145,9 +146,19 @@ function drawAll(){
 
   drawBricks();
 
-  var mouseBrickCol = mouseX / BRICK_W;
-  var mouseBrickRow = mouseY / BRICK_H;
-  colorText(mouseBrickCol+","+mouseBrickRow, mouseX,mouseY, 'yellow');
+  var mouseBrickCol = Math.floor(mouseX / BRICK_W);
+	var mouseBrickRow = Math.floor(mouseY / BRICK_H);
+	var brickIndexUnderMouse = rowColToArrayIndex(mouseBrickCol, mouseBrickRow);
+
+	colorText(mouseBrickCol+","+mouseBrickRow+": "+brickIndexUnderMouse,
+				mouseX, mouseY, 'yellow');
+
+	if(brickIndexUnderMouse >= 0 &&
+		brickIndexUnderMouse < BRICK_COLS * BRICK_ROWS) {
+
+		brickGrid[brickIndexUnderMouse] = false;
+
+	}
 }
 
 function colorRect(topLeftX,topLeftY, boxWidth,boxHeight, fillColor){
@@ -175,6 +186,8 @@ function colorText(showWords, textX,textY, fillColor){
 // X & Y axis
 // canvas id - is this standard usage?
 // canvasContext = canvas.getContext('2d'); ??
+
+// QUESTIONS  - what do the different colours in Atom dinfferential between?
 
 </script>
 </body>
